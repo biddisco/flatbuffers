@@ -147,8 +147,8 @@ inline std::string StripFileName(const std::string &filepath) {
 inline std::string ConCatPathFileName(const std::string &path,
                                       const std::string &filename) {
   std::string filepath = path;
-  if (path.length() && path.back() != kPathSeparator &&
-                       path.back() != kPosixPathSeparator)
+  if (path.length() && *path.rbegin() != kPathSeparator &&
+                       *path.rbegin() != kPosixPathSeparator)
     filepath += kPathSeparator;
   filepath += filename;
   return filepath;

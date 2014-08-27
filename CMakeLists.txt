@@ -26,11 +26,26 @@ set(FlatBuffers_VERSION 1.0.0)
 option(FLATBUFFERS_CODE_COVERAGE "Enable the code coverage build option." OFF)
 option(FLATBUFFERS_BUILD_TESTS "Enable the build of tests and samples." ON)
 option(FLATBUFFERS_INSTALL "Enable the installation of targets." ON)
+option(FLATBUFFERS_USE_CXX03_STDLIB
+ "Use boost classes to enable C++03 stdlib compatibility" OFF)
+
+if(FLATBUFFERS_USE_CXX03_STDLIB)
+  find_package(Boost 1.41.0 REQUIRED)
+  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+endif()
+
+#--------------------------------------------------
+# generate options.h file in build dir
+#--------------------------------------------------
+configure_file(include/flatbuffers/options.in.h
+  "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h")
+include_directories("${PROJECT_BINARY_DIR}/include")
 
 #--------------------------------------------------
 # Source files for flatc compiler 
 #--------------------------------------------------
 set(FlatBuffers_Compiler_SRCS
+  "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h"
   include/flatbuffers/flatbuffers.h
   include/flatbuffers/idl.h
   include/flatbuffers/util.h
@@ -88,7 +103,10 @@ set(FlatBuffers_Sample_Text_SRCS
 #--------------------------------------------------
 if(APPLE)
   set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++ -Wall -pedantic -Werror -Wextra")
+    "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic -Werror -Wextra")
+  if(NOT FLATBUFFERS_USE_CXX03_STDLIB)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  endif()
 elseif(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra")
@@ -106,7 +124,10 @@ endif()
 #--------------------------------------------------
 # Include directories needed for compilation
 #--------------------------------------------------
-include_directories(include)
+include_directories(
+  include
+  ${PROJECT_BINARY_DIR}/include
+)
 
 #--------------------------------------------------
 # A function to call the flatc compiler and generate the header
@@ -173,6 +194,8 @@ set(ConfigPackageLocation share/cmake/FlatBuffers)
 
 # copy all the include files to the install dir
 install(DIRECTORY include/flatbuffers DESTINATION include)
+install(FILES "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h"
+  DESTINATION include/flatbuffers)
 
 #--------------------------------------------------
 # install the flatc executable and add it to EXPORT
@@ -230,7 +253,7 @@ install(
 # Setup include files for the BUILD dir and source location
 #--------------------------------------------------
 set(FLATBUFFERS_INCLUDE_DIRS 
-#  "${PROJECT_BINARY_DIR}/include"
+  "${PROJECT_BINARY_DIR}/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in

@@ -136,11 +136,11 @@ int main(int argc, const char *argv[]) {
       switch (arg[1]) {
         case 'o':
           if (++i >= argc) Error("missing path following", arg, true);
-          output_path = flatbuffers::ConCatPathFileName(argv[i], "");
-          break;
-        case 'I':
-          if (++i >= argc) Error("missing path following", arg, true);
-          include_directories.push_back(argv[i]);
+          output_path = argv[i];
+          if (!(*output_path.rbegin() == flatbuffers::kPathSeparator ||
+                *output_path.rbegin() == flatbuffers::kPosixPathSeparator)) {
+            output_path += flatbuffers::kPathSeparator;
+          }
           break;
         case 'S':
           opts.strict_json = true;

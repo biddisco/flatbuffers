@@ -19,6 +19,12 @@
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/idl.h"
 #include "flatbuffers/util.h"
+#ifdef FLATBUFFERS_USE_CXX03_STDLIB
+  #include "boost/function.hpp"
+  namespace flatbufferstd = boost;
+#else
+  namespace flatbufferstd = std;
+#endif
 
 namespace flatbuffers {
 namespace cpp {
@@ -392,7 +398,7 @@ static void GenTable(const Parser &parser, StructDef &struct_def,
   code += "  return builder_.Finish();\n}\n\n";
 }
 
-static void GenPadding(const FieldDef &field, const std::function<void (int bits)> &f) {
+static void GenPadding(const FieldDef &field, const flatbufferstd::function<void (int bits)> &f) {
   if (field.padding) {
     for (int i = 0; i < 4; i++)
       if (static_cast<int>(field.padding) & (1 << i))
