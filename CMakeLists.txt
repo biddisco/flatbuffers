@@ -177,14 +177,19 @@ set(FLATBUFFERS_INCLUDE_DIRS
   "${PROJECT_BINARY_DIR}/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/FlatBuffersConfig.cmake" @ONLY)
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/FlatBuffersConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/FlatBuffersConfig.cmake"
+  PATH_VARS FLATBUFFERS_INCLUDE_DIRS)
 
 # Setup include files for the INSTALL dir
 set(FLATBUFFERS_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/FlatBuffersConfig.cmake" @ONLY)
-
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/FlatBuffersConfig.cmake"
+  INSTALL_DESTINATION ${ConfigPackageLocation}
+  PATH_VARS FLATBUFFERS_INCLUDE_DIRS)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/FlatBuffersConfig.cmake"
   DESTINATION ${ConfigPackageLocation} COMPONENT dev)
